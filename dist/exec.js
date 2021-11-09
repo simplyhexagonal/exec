@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "0.0.1";
+var version = "1.0.0";
 
 // src/index.ts
 var ExecError = class extends Error {
