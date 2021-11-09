@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+MODULE_NAME=exec
+GLOBAL_NAME=exec
+
+rm -rf dist/*
+esbuild src/index.ts --bundle \
+  --external:\@simplyhexagonal/elean --external:\@simplyhexagonal/mono-context \
+  --platform=node \
+  --outfile=dist/$MODULE_NAME.js --sourcemap --global-name=$GLOBAL_NAME \
+  && tsc -d --emitDeclarationOnly --rootDir src --outDir dist \
+  && mv dist/index.d.ts dist/$MODULE_NAME.d.ts \
+  || exit 1
