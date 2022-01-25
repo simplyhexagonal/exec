@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "1.0.3";
+var version = "1.0.4";
 
 // src/index.ts
 var ExecError = class extends Error {
@@ -110,4 +110,4 @@ var src_default = exec;
   version
 });
 //# sourceMappingURL=exec.js.map
-'undefined'!=typeof module&&(module.exports=exec.default),'undefined'!=typeof window&&(exec=exec.default);
+'undefined'!=typeof module&&(module.exports=exec),'undefined'!=typeof window&&(exec=exec);
