@@ -1,6 +1,6 @@
 {
   "name": "@simplyhexagonal/exec",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A convenient async wrapper for Node.js's child_process.exec function",
   "keywords": [
     "exec",
