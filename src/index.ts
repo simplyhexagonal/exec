@@ -38,7 +38,7 @@ const realtimeLog = (...args: any[]) => {
   }
 }
 
-export default async (command: string) => {
+const exec = async (command: string) => {
   const logger = MonoContext.getStateValue('logger') || console;
 
   const child = execCallback(command);
@@ -107,3 +107,5 @@ export default async (command: string) => {
     )
   );
 };
+
+export default exec;
