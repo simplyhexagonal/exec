@@ -10,5 +10,5 @@ export declare class ExecError extends Error {
     stderrOutput: string;
     constructor(message: string, exitCode: number, stdoutOutput: string, stderrOutput: string);
 }
-declare const _default: (command: string) => Promise<ExecResult>;
-export default _default;
+declare const exec: (command: string) => Promise<ExecResult>;
+export default exec;

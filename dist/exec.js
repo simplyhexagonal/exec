@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "1.0.1";
+var version = "1.0.2";
 
 // src/index.ts
 var ExecError = class extends Error {
@@ -52,7 +52,7 @@ var realtimeLog = (...args) => {
     logger.debug(...args);
   }
 };
-var src_default = async (command) => {
+var exec = async (command) => {
   const logger = import_mono_context.default.getStateValue("logger") || console;
   const child = (0, import_child_process.exec)(command);
   const { stdout, stderr } = child;
@@ -103,6 +103,7 @@ var src_default = async (command) => {
     });
   });
 };
+var src_default = exec;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ExecError,
