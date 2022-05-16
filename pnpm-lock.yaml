@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@simplyhexagonal/elean': ^1.0.0
@@ -26,8 +26,8 @@ devDependencies:
   jest: 27.3.1_ts-node@10.4.0
   refup: 1.1.0
   release-it: 14.11.6
-  ts-jest: 27.0.7_2c4ca6574207836d1023f54689cc81ac
-  ts-node: 10.4.0_bada05a3e1cd24c0fc5f82f6eaa2ca15
+  ts-jest: 27.0.7_frgkmv2ca6bw2ebd6vdittebvq
+  ts-node: 10.4.0_xlnali7bzusmb7c7ql3oviwkcu
   ts-node-dev: 1.1.8_typescript@4.4.4
   tslib: 2.3.1
   typescript: 4.4.4
@@ -216,6 +216,8 @@ packages:
     resolution: {integrity: sha512-BRYa3wcQnjS/nqI8Ac94pYYpJfojHVvVXJ97+IDCImX4Jc8W8Xv1+47enbruk+q1etOpsQNwnfFcNGw+gtPGxA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.15.6
     dev: true
 
   /@babel/plugin-syntax-async-generators/7.8.4_@babel+core@7.15.8:
@@ -2096,6 +2098,8 @@ packages:
     dependencies:
       '@sindresorhus/is': 0.14.0
       '@szmarczak/http-timer': 1.1.2
+      '@types/keyv': 3.1.3
+      '@types/responselike': 1.0.0
       cacheable-request: 6.1.0
       decompress-response: 3.3.0
       duplexer3: 0.1.4
@@ -2597,7 +2601,7 @@ packages:
       jest-validate: 27.3.1
       micromatch: 4.0.4
       pretty-format: 27.3.1
-      ts-node: 10.4.0_bada05a3e1cd24c0fc5f82f6eaa2ca15
+      ts-node: 10.4.0_xlnali7bzusmb7c7ql3oviwkcu
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -4053,7 +4057,7 @@ packages:
     hasBin: true
     dev: true
 
-  /ts-jest/27.0.7_2c4ca6574207836d1023f54689cc81ac:
+  /ts-jest/27.0.7_frgkmv2ca6bw2ebd6vdittebvq:
     resolution: {integrity: sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
@@ -4108,7 +4112,7 @@ packages:
       typescript: 4.4.4
     dev: true
 
-  /ts-node/10.4.0_bada05a3e1cd24c0fc5f82f6eaa2ca15:
+  /ts-node/10.4.0_xlnali7bzusmb7c7ql3oviwkcu:
     resolution: {integrity: sha512-g0FlPvvCXSIO1JDF6S232P5jPYqBkRL9qly81ZgAOSU7rwI0stphCgd2kLiCrU9DjQCrJMWEqcNSjQL02s6d8A==}
     hasBin: true
     peerDependencies:

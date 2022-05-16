@@ -6,6 +6,12 @@ import MonoContext from '@simplyhexagonal/mono-context';
 // @ts-ignore
 export { version } from '../package.json';
 
+export interface ExecOptions {
+  logStdout?: boolean;
+  logStderr?: boolean;
+  loggerInstance?: any;
+}
+
 export interface ExecResult {
   exitCode:number;
   stdoutOutput:string;
@@ -38,8 +44,17 @@ const realtimeLog = (...args: any[]) => {
   }
 }
 
-const exec = async (command: string) => {
-  const logger = MonoContext.getStateValue('logger') || console;
+const exec = (
+  command: string,
+  options?: ExecOptions,
+) => {
+  const {
+    logStdout,
+    logStderr,
+    loggerInstance,
+  } = options || {};
+
+  const logger = loggerInstance || MonoContext.getStateValue('logger') || console;
 
   const child = execCallback(command);
 
@@ -51,8 +66,12 @@ const exec = async (command: string) => {
   let stdoutOutput = '';
   let stderrOutput = '';
 
-  stdout?.on('data', (chunk) => {realtimeLog(chunk);stdoutChunks.push(Buffer.from(chunk));});
-  stderr?.on('data', (chunk) => {realtimeLog(chunk);stderrChunks.push(Buffer.from(chunk));});
+  stdout?.on('data', (chunk) => {
+    logStdout && realtimeLog(chunk);stdoutChunks.push(Buffer.from(chunk));
+  });
+  stderr?.on('data', (chunk) => {
+    logStderr && realtimeLog(chunk);stderrChunks.push(Buffer.from(chunk));
+  });
 
   const stdoutPromise = new Promise<void>((resolve, reject) => {
     stdout?.on('end', () => {
@@ -68,15 +87,16 @@ const exec = async (command: string) => {
     });
   });
 
-  return await (
-    new Promise<ExecResult>(
+  return {
+    process: child,
+    promise: new Promise<ExecResult>(
       (resolve, reject) => {
         child.addListener('error', reject);
         child.addListener('exit', async (exitCode: number) => {
           await stdoutPromise;
           await stderrPromise;
 
-          if (stdoutOutput && !shouldRealtimeLog) {
+          if (stdoutOutput && !shouldRealtimeLog && logStdout) {
             logger.debug(stdoutOutput);
           }
 
@@ -85,7 +105,7 @@ const exec = async (command: string) => {
           }
 
           if (exitCode !== 0) {
-            logger.debug(`Error exit code is: ${exitCode}`);
+            logger.debug(`Error exit code of command "${command}" is: ${exitCode}`);
 
             reject(
               new ExecError(
@@ -105,7 +125,7 @@ const exec = async (command: string) => {
         });
       }
     )
-  );
+  };
 };
 
 export default exec;
