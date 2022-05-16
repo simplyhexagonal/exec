@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "2.0.1";
+var version = "2.0.2";
 
 // src/index.ts
 var ExecError = class extends Error {
@@ -50,7 +50,9 @@ var exec = (command, options) => {
     realtimeStdout,
     logStdout,
     logStderr,
-    loggerInstance
+    loggerInstance,
+    stdoutLogLevel,
+    stderrLogLevel
   } = options || {};
   const shouldRealtimeLog = realtimeStdout || (0, import_elean.default)(REALTIME_LOG);
   const logger = loggerInstance || import_mono_context.default.getStateValue("logger") || console;
@@ -61,11 +63,11 @@ var exec = (command, options) => {
   let stdoutOutput = "";
   let stderrOutput = "";
   stdout?.on("data", (chunk) => {
-    logStdout && realtimeStdout && chunk && logger && logger.debug(chunk);
+    logStdout && realtimeStdout && chunk && logger && logger[stdoutLogLevel || "debug"](chunk);
     stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on("data", (chunk) => {
-    logStderr && realtimeStdout && chunk && logger && logger.debug(chunk);
+    logStderr && realtimeStdout && chunk && logger && logger[stderrLogLevel || "debug"](chunk);
     stderrChunks.push(Buffer.from(chunk));
   });
   const stdoutPromise = new Promise((resolve, reject) => {
@@ -88,13 +90,13 @@ var exec = (command, options) => {
         await stdoutPromise;
         await stderrPromise;
         if (stdoutOutput && !shouldRealtimeLog && logStdout) {
-          logger.debug(stdoutOutput);
+          logger[stdoutLogLevel || "debug"](stdoutOutput);
         }
-        if (exitCode === 0 && stderrOutput) {
-          await logger.warn(stderrOutput);
+        if (exitCode === 0 && stderrOutput && logStderr) {
+          await logger[stderrLogLevel || "warn"](stderrOutput);
         }
-        if (exitCode !== 0) {
-          logger.debug(`Error exit code of command "${command}" is: ${exitCode}`);
+        if (exitCode !== 0 && logStderr) {
+          logger[stderrLogLevel || "warn"](`Error exit code of command "${command}" is: ${exitCode}`);
           reject(new ExecError(stderrOutput || stdoutOutput, exitCode, stdoutOutput, stderrOutput));
         }
         resolve({

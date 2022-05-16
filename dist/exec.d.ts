@@ -5,6 +5,8 @@ export interface ExecOptions {
     logStdout?: boolean;
     logStderr?: boolean;
     loggerInstance?: any;
+    stdoutLogLevel?: 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'all' | 'raw';
+    stderrLogLevel?: 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'all' | 'raw';
 }
 export interface ExecResult {
     exitCode: number;
