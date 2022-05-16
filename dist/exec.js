@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "2.0.0";
+var version = "2.0.1";
 
 // src/index.ts
 var ExecError = class extends Error {
@@ -45,19 +45,14 @@ var ExecError = class extends Error {
   }
 };
 var { REALTIME_LOG } = process.env;
-var shouldRealtimeLog = (0, import_elean.default)(REALTIME_LOG);
-var realtimeLog = (...args) => {
-  const logger = import_mono_context.default.getStateValue("logger") || console;
-  if (shouldRealtimeLog) {
-    logger.debug(...args);
-  }
-};
 var exec = (command, options) => {
   const {
+    realtimeStdout,
     logStdout,
     logStderr,
     loggerInstance
   } = options || {};
+  const shouldRealtimeLog = realtimeStdout || (0, import_elean.default)(REALTIME_LOG);
   const logger = loggerInstance || import_mono_context.default.getStateValue("logger") || console;
   const child = (0, import_child_process.exec)(command);
   const { stdout, stderr } = child;
@@ -66,11 +61,11 @@ var exec = (command, options) => {
   let stdoutOutput = "";
   let stderrOutput = "";
   stdout?.on("data", (chunk) => {
-    logStdout && realtimeLog(chunk);
+    logStdout && realtimeStdout && chunk && logger && logger.debug(chunk);
     stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on("data", (chunk) => {
-    logStderr && realtimeLog(chunk);
+    logStderr && realtimeStdout && chunk && logger && logger.debug(chunk);
     stderrChunks.push(Buffer.from(chunk));
   });
   const stdoutPromise = new Promise((resolve, reject) => {
@@ -86,8 +81,8 @@ var exec = (command, options) => {
     });
   });
   return {
-    process: child,
-    promise: new Promise((resolve, reject) => {
+    execProcess: child,
+    execPromise: new Promise((resolve, reject) => {
       child.addListener("error", reject);
       child.addListener("exit", async (exitCode) => {
         await stdoutPromise;
