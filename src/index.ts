@@ -11,6 +11,8 @@ export interface ExecOptions {
   logStdout?: boolean;
   logStderr?: boolean;
   loggerInstance?: any;
+  stdoutLogLevel?: 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'all' | 'raw';
+  stderrLogLevel?: 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'all' | 'raw';
 }
 
 export interface ExecResult {
@@ -44,6 +46,8 @@ const exec = (
     logStdout,
     logStderr,
     loggerInstance,
+    stdoutLogLevel,
+    stderrLogLevel,
   } = options || {};
 
   const shouldRealtimeLog = realtimeStdout || elean(REALTIME_LOG);
@@ -61,11 +65,11 @@ const exec = (
   let stderrOutput = '';
 
   stdout?.on('data', (chunk) => {
-    logStdout && realtimeStdout && chunk && logger && logger.debug(chunk);
+    logStdout && realtimeStdout && chunk && logger && logger[stdoutLogLevel || 'debug'](chunk);
     stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on('data', (chunk) => {
-    logStderr && realtimeStdout && chunk && logger && logger.debug(chunk);
+    logStderr && realtimeStdout && chunk && logger && logger[stderrLogLevel || 'debug'](chunk);
     stderrChunks.push(Buffer.from(chunk));
   });
 
@@ -93,15 +97,15 @@ const exec = (
           await stderrPromise;
 
           if (stdoutOutput && !shouldRealtimeLog && logStdout) {
-            logger.debug(stdoutOutput);
+            logger[stdoutLogLevel || 'debug'](stdoutOutput);
           }
 
-          if (exitCode === 0 && stderrOutput) {
-            await logger.warn(stderrOutput);
+          if (exitCode === 0 && stderrOutput && logStderr) {
+            await logger[stderrLogLevel || 'warn'](stderrOutput);
           }
 
-          if (exitCode !== 0) {
-            logger.debug(`Error exit code of command "${command}" is: ${exitCode}`);
+          if (exitCode !== 0 && logStderr) {
+            logger[stderrLogLevel || 'warn'](`Error exit code of command "${command}" is: ${exitCode}`);
 
             reject(
               new ExecError(
