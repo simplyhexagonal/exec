@@ -7,6 +7,7 @@ import MonoContext from '@simplyhexagonal/mono-context';
 export { version } from '../package.json';
 
 export interface ExecOptions {
+  realtimeStdout?: boolean;
   logStdout?: boolean;
   logStderr?: boolean;
   loggerInstance?: any;
@@ -34,11 +35,7 @@ export class ExecError extends Error {
 
 const { REALTIME_LOG } = process.env;
 
-const shouldRealtimeLog = elean(REALTIME_LOG);
-
-const realtimeLog = (...args: any[]) => {
-  const logger = MonoContext.getStateValue('logger') || console;
-
+const realtimeLog = (logger: any, shouldRealtimeLog: boolean, ...args: any[]) => {
   if (shouldRealtimeLog) {
     logger.debug(...args);
   }
@@ -49,10 +46,13 @@ const exec = (
   options?: ExecOptions,
 ) => {
   const {
+    realtimeStdout,
     logStdout,
     logStderr,
     loggerInstance,
   } = options || {};
+
+  const shouldRealtimeLog = realtimeStdout || elean(REALTIME_LOG);
 
   const logger = loggerInstance || MonoContext.getStateValue('logger') || console;
 
@@ -67,10 +67,12 @@ const exec = (
   let stderrOutput = '';
 
   stdout?.on('data', (chunk) => {
-    logStdout && realtimeLog(chunk);stdoutChunks.push(Buffer.from(chunk));
+    logStdout && realtimeStdout && realtimeLog(logger, chunk);
+    stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on('data', (chunk) => {
-    logStderr && realtimeLog(chunk);stderrChunks.push(Buffer.from(chunk));
+    logStderr && realtimeStdout && realtimeLog(logger, chunk);
+    stderrChunks.push(Buffer.from(chunk));
   });
 
   const stdoutPromise = new Promise<void>((resolve, reject) => {
@@ -88,8 +90,8 @@ const exec = (
   });
 
   return {
-    process: child,
-    promise: new Promise<ExecResult>(
+    execProcess: child,
+    execPromise: new Promise<ExecResult>(
       (resolve, reject) => {
         child.addListener('error', reject);
         child.addListener('exit', async (exitCode: number) => {

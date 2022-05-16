@@ -6,22 +6,55 @@ A convenient async wrapper for Node.js's `child_process.exec` function.
 ```ts
 import exec from '@simplyhexagonal/exec';
 
-const successResult = await exec('echo hello world');
+const {
+  execProcess,
+  execPromise,
+} = exec('echo hello world');
+
+const successResult = await execPromise;
 
 // successResult {
 //   "exitCode": 0,
 //   "stdoutOutput": "hello world\n",
 //   "stderrOutput": ""
 // }
+```
 
-const failResult = await exec(
+```ts
+import exec from '@simplyhexagonal/exec';
+
+const {
+  execProcess,
+  execPromise,
+} = exec(
   '>&2 echo hello world && exit 1'
 ).catch((e) => e);
+
+const failResult = await execPromise;
 
 // failResult {
 //   "exitCode": 1,
 //   "stdoutOutput": "",
 //   "stderrOutput": "hello world\n"
+// }
+```
+
+```ts
+import exec from '@simplyhexagonal/exec';
+
+const {
+  execProcess,
+  execPromise,
+} = exec('sleep 2; echo hello world');
+
+execProcess.kill('SIGINT');
+
+const killResult = await execPromise;
+
+// killResult {
+//   "exitCode": null,
+//   "stdoutOutput": "",
+//   "stderrOutput": ""
 // }
 ```
 
