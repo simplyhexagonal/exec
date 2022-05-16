@@ -33,7 +33,7 @@ var import_elean = __toModule(require("@simplyhexagonal/elean"));
 var import_mono_context = __toModule(require("@simplyhexagonal/mono-context"));
 
 // package.json
-var version = "1.0.4";
+var version = "2.0.0";
 
 // src/index.ts
 var ExecError = class extends Error {
@@ -52,8 +52,13 @@ var realtimeLog = (...args) => {
     logger.debug(...args);
   }
 };
-var exec = async (command) => {
-  const logger = import_mono_context.default.getStateValue("logger") || console;
+var exec = (command, options) => {
+  const {
+    logStdout,
+    logStderr,
+    loggerInstance
+  } = options || {};
+  const logger = loggerInstance || import_mono_context.default.getStateValue("logger") || console;
   const child = (0, import_child_process.exec)(command);
   const { stdout, stderr } = child;
   const stdoutChunks = [];
@@ -61,11 +66,11 @@ var exec = async (command) => {
   let stdoutOutput = "";
   let stderrOutput = "";
   stdout?.on("data", (chunk) => {
-    realtimeLog(chunk);
+    logStdout && realtimeLog(chunk);
     stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on("data", (chunk) => {
-    realtimeLog(chunk);
+    logStderr && realtimeLog(chunk);
     stderrChunks.push(Buffer.from(chunk));
   });
   const stdoutPromise = new Promise((resolve, reject) => {
@@ -80,28 +85,31 @@ var exec = async (command) => {
       resolve();
     });
   });
-  return await new Promise((resolve, reject) => {
-    child.addListener("error", reject);
-    child.addListener("exit", async (exitCode) => {
-      await stdoutPromise;
-      await stderrPromise;
-      if (stdoutOutput && !shouldRealtimeLog) {
-        logger.debug(stdoutOutput);
-      }
-      if (exitCode === 0 && stderrOutput) {
-        await logger.warn(stderrOutput);
-      }
-      if (exitCode !== 0) {
-        logger.debug(`Error exit code is: ${exitCode}`);
-        reject(new ExecError(stderrOutput || stdoutOutput, exitCode, stdoutOutput, stderrOutput));
-      }
-      resolve({
-        exitCode,
-        stdoutOutput,
-        stderrOutput
+  return {
+    process: child,
+    promise: new Promise((resolve, reject) => {
+      child.addListener("error", reject);
+      child.addListener("exit", async (exitCode) => {
+        await stdoutPromise;
+        await stderrPromise;
+        if (stdoutOutput && !shouldRealtimeLog && logStdout) {
+          logger.debug(stdoutOutput);
+        }
+        if (exitCode === 0 && stderrOutput) {
+          await logger.warn(stderrOutput);
+        }
+        if (exitCode !== 0) {
+          logger.debug(`Error exit code of command "${command}" is: ${exitCode}`);
+          reject(new ExecError(stderrOutput || stdoutOutput, exitCode, stdoutOutput, stderrOutput));
+        }
+        resolve({
+          exitCode,
+          stdoutOutput,
+          stderrOutput
+        });
       });
-    });
-  });
+    })
+  };
 };
 var src_default = exec;
 // Annotate the CommonJS export names for ESM import in node:
