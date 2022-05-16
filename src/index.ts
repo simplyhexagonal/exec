@@ -35,12 +35,6 @@ export class ExecError extends Error {
 
 const { REALTIME_LOG } = process.env;
 
-const realtimeLog = (logger: any, shouldRealtimeLog: boolean, ...args: any[]) => {
-  if (shouldRealtimeLog) {
-    logger.debug(...args);
-  }
-}
-
 const exec = (
   command: string,
   options?: ExecOptions,
@@ -67,11 +61,11 @@ const exec = (
   let stderrOutput = '';
 
   stdout?.on('data', (chunk) => {
-    logStdout && realtimeStdout && realtimeLog(logger, chunk);
+    logStdout && realtimeStdout && chunk && logger && logger.debug(chunk);
     stdoutChunks.push(Buffer.from(chunk));
   });
   stderr?.on('data', (chunk) => {
-    logStderr && realtimeStdout && realtimeLog(logger, chunk);
+    logStderr && realtimeStdout && chunk && logger && logger.debug(chunk);
     stderrChunks.push(Buffer.from(chunk));
   });
 
